@@ -25,7 +25,8 @@ positions = ["正位置", "逆位置"]
 def draw_tarot():
     card = random.choice(tarot_deck)
     position = random.choice(positions)
-    return jsonify({"card": card, "position": position})
+    return jsonify({"card": card, "position": position}, ensure_ascii=False)  # ensure_ascii=Falseを追加！
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+
