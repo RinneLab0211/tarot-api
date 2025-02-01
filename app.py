@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, Response, json
 import random
 
 app = Flask(__name__)
@@ -25,8 +25,11 @@ positions = ["正位置", "逆位置"]
 def draw_tarot():
     card = random.choice(tarot_deck)
     position = random.choice(positions)
-    # ensure_ascii=False を追加して文字化けを防ぐ
-    return jsonify({"card": card, "position": position}, ensure_ascii=False)
+    response_data = {"card": card, "position": position}
+
+    # JSONをエンコードし、Content-Typeを明示する
+    response_json = json.dumps(response_data, ensure_ascii=False)
+    return Response(response_json, content_type="application/json; charset=utf-8")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
