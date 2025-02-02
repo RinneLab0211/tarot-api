@@ -1,4 +1,3 @@
-git add tarot.py
 git commit -m "Add tarot.py"
 git push origin main
 
