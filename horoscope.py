@@ -1,5 +1,5 @@
 from flask import Blueprint, Response, request, json
-import swisseph as swe
+from skyfield.api import load
 
 # 占星術API用のBlueprint
 horoscope_bp = Blueprint("horoscope", __name__)
@@ -11,16 +11,26 @@ def horoscope():
     month = int(request.args.get("month"))
     day = int(request.args.get("day"))
     hour = float(request.args.get("hour", 12))  # デフォルト値: 12時
-    longitude = float(request.args.get("longitude", 0))  # 経度
-    latitude = float(request.args.get("latitude", 0))  # 緯度
 
-    # ユリウス日を計算
-    julian_day = swe.julday(year, month, day, hour)
+    # Skyfieldのデータをロード
+    eph = load('de421.bsp')  # JPL DE421天体暦を使用
+    ts = load.timescale()
+
+    # ユーザーが指定した日時を計算
+    t = ts.utc(year, month, day, int(hour), int((hour % 1) * 60))
 
     # 惑星の位置を計算
-    planet_positions = {
-        swe.get_planet_name(planet): swe.calc_ut(julian_day, planet)[0]
-        for planet in range(swe.SUN, swe.PLUTO + 1)
+    planets = {
+        "Mercury": eph['mercury'].at(t).ecliptic_latlon(),
+        "Venus": eph['venus'].at(t).ecliptic_latlon(),
+        "Mars": eph['mars'].at(t).ecliptic_latlon(),
+        "Jupiter": eph['jupiter barycenter'].at(t).ecliptic_latlon(),
+        "Saturn": eph['saturn barycenter'].at(t).ecliptic_latlon()
     }
 
-    return Response(json.dumps({"planets": planet_positions}), mimetype="application/json")
+    # 結果を辞書形式に変換
+    planet_positions = {key: (str(position[0].degrees), str(position[1].degrees))
+                        for key, position in planets.items()}
+
+    response_json = json.dumps({"planets": planet_positions}, ensure_ascii=False)
+    return Response(response_json, content_type="application/json; charset=utf-8")
