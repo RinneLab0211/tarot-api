@@ -1,5 +1,8 @@
 import os
-from flask import Flask
+from flask import Blueprint
+
+horoscope_bp = Blueprint('horoscope', __name__)
+
 from tarot import tarot_bp
 from horoscope import horoscope_bp
 
