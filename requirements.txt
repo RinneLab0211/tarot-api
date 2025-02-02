@@ -1,3 +1,2 @@
 Flask==2.3.2
-swisseph==2.10.3
---use-feature=fast-deps
+skyfield==1.45
