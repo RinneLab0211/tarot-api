@@ -1,6 +1,3 @@
-git commit -m "Add tarot.py"
-git push origin main
-
 from flask import Blueprint, Response, json
 import random
 
