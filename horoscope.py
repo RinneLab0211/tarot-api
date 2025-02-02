@@ -1,6 +1,12 @@
 import os
-from flask import Flask, Blueprint, Response, json
+from flask import Flask, Blueprint, Response, json, request  # ✅ `request` を追加！
 from skyfield.api import load
+
+# BSPファイルを確実にダウンロード
+bsp_path = "de421.bsp"
+if not os.path.exists(bsp_path):
+    from urllib.request import urlretrieve
+    urlretrieve("https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de421.bsp", bsp_path)
 
 # Flaskアプリケーションの作成
 horoscope_bp = Blueprint('horoscope', __name__)
@@ -14,7 +20,7 @@ def horoscope():
     hour = float(request.args.get("hour", 12))  # デフォルト値: 12時
 
     # Skyfieldのデータをロード
-    eph = load('de421.bsp')  # JPL DE421天体暦を使用
+    eph = load(bsp_path)  # 修正: ファイルが確実にあるか確認！
     ts = load.timescale()
 
     # ユーザーが指定した日時を計算
