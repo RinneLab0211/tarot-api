@@ -13,3 +13,7 @@ main_app.register_blueprint(horoscope_bp)
 
 if __name__ == "__main__":
     main_app.run(host="0.0.0.0", port=5000)
+
+@main_app.route('/')
+def index():
+    return "Welcome to the Tarot and Horoscope API! Use /draw or /horoscope for results."
