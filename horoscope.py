@@ -2,7 +2,7 @@ import os
 from flask import Flask, Blueprint, Response, json, request
 from skyfield.api import load
 
-# 正しいBSPファイルのURL
+# BSPファイルのURLとパス
 BSP_URL = "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421.bsp"
 BSP_FILE = "de421.bsp"
 
@@ -29,33 +29,29 @@ def horoscope():
     hour = float(request.args.get("hour", 12))  # デフォルト値: 12時
 
     # Skyfieldのデータをロード
-    eph = load(BSP_FILE)  # 修正: 正しいファイルをロード！
+    eph = load(BSP_FILE)  # NASAのデータをロード
     ts = load.timescale()
 
     # ユーザーが指定した日時を計算
     t = ts.utc(year, month, day, int(hour), int((hour % 1) * 60))
 
-    # 惑星の位置を計算
+    # 惑星の位置を計算（太陽・月・全惑星）
     planets = {
-        "Mercury": eph['mercury'].at(t).ecliptic_latlon(),
-        "Venus": eph['venus'].at(t).ecliptic_latlon(),
-        "Mars": eph['mars'].at(t).ecliptic_latlon(),
-        "Jupiter": eph['jupiter barycenter'].at(t).ecliptic_latlon(),
-        "Saturn": eph['saturn barycenter'].at(t).ecliptic_latlon()
+        "太陽": eph['sun'].at(t).ecliptic_latlon(),
+        "月": eph['moon'].at(t).ecliptic_latlon(),
+        "水星": eph['mercury'].at(t).ecliptic_latlon(),
+        "金星": eph['venus'].at(t).ecliptic_latlon(),
+        "火星": eph['mars'].at(t).ecliptic_latlon(),
+        "木星": eph['jupiter barycenter'].at(t).ecliptic_latlon(),
+        "土星": eph['saturn barycenter'].at(t).ecliptic_latlon(),
+        "天王星": eph['uranus barycenter'].at(t).ecliptic_latlon(),
+        "海王星": eph['neptune barycenter'].at(t).ecliptic_latlon(),
+        "冥王星": eph['pluto barycenter'].at(t).ecliptic_latlon()
     }
 
-    # 英語名 → 日本語名のマッピング
-    planet_names = {
-        "Mercury": "水星",
-        "Venus": "金星",
-        "Mars": "火星",
-        "Jupiter": "木星",
-        "Saturn": "土星"
-    }
-
-    # 結果を辞書形式に変換（日本語名を使用、小数点以下2桁に丸める）
+    # 結果を辞書形式に変換（小数点以下2桁に丸める）
     planet_positions = {
-        planet_names[key]: (round(position[0].degrees, 2), round(position[1].degrees, 2))
+        key: (round(position[0].degrees, 2), round(position[1].degrees, 2))
         for key, position in planets.items()
     }
 
