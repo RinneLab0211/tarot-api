@@ -1,3 +1,8 @@
+from flask import Blueprint
+
+horoscope_bp = Blueprint('horoscope', __name__)
+
+
 @horoscope_bp.route("/horoscope", methods=["GET"])
 def horoscope():
     # クエリパラメータを取得
