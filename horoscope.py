@@ -1,9 +1,3 @@
-from flask import Blueprint, Response, request, json
-from skyfield.api import load
-
-# 占星術API用のBlueprint
-horoscope_bp = Blueprint("horoscope", __name__)
-
 @horoscope_bp.route("/horoscope", methods=["GET"])
 def horoscope():
     # クエリパラメータを取得
@@ -28,9 +22,11 @@ def horoscope():
         "Saturn": eph['saturn barycenter'].at(t).ecliptic_latlon()
     }
 
-    # 結果を辞書形式に変換
-    planet_positions = {key: (str(position[0].degrees), str(position[1].degrees))
-                        for key, position in planets.items()}
+    # 結果を辞書形式に変換（小数点以下2桁に丸める）
+    planet_positions = {
+        key: (round(position[0].degrees, 2), round(position[1].degrees, 2))
+        for key, position in planets.items()
+    }
 
     response_json = json.dumps({"planets": planet_positions}, ensure_ascii=False)
     return Response(response_json, content_type="application/json; charset=utf-8")
