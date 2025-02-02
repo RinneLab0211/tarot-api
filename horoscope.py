@@ -22,11 +22,21 @@ def horoscope():
         "Saturn": eph['saturn barycenter'].at(t).ecliptic_latlon()
     }
 
-    # 結果を辞書形式に変換（小数点以下2桁に丸める）
+    # 英語名 → 日本語名のマッピング
+    planet_names = {
+        "Mercury": "水星",
+        "Venus": "金星",
+        "Mars": "火星",
+        "Jupiter": "木星",
+        "Saturn": "土星"
+    }
+
+    # 結果を辞書形式に変換（日本語名を使用、小数点以下2桁に丸める）
     planet_positions = {
-        key: (round(position[0].degrees, 2), round(position[1].degrees, 2))
+        planet_names[key]: (round(position[0].degrees, 2), round(position[1].degrees, 2))
         for key, position in planets.items()
     }
 
-    response_json = json.dumps({"planets": planet_positions}, ensure_ascii=False)
+    # JSONレスポンスを作成
+    response_json = json.dumps({"惑星の位置": planet_positions}, ensure_ascii=False)
     return Response(response_json, content_type="application/json; charset=utf-8")
