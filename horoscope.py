@@ -83,7 +83,8 @@ def horoscope():
     # 惑星の度数と星座
     planet_positions = {}
     for name, position in planets.items():
-        degree = round(position[0].degrees, 2)  # 黄経の度数
+        degree = position[0].degrees % 360  # 0〜360度に正規化（修正点）
+        degree = round(degree, 2)  # 小数点2桁まで丸める
         zodiac = get_zodiac_sign(degree)  # 12星座の計算
         planet_positions[name] = {"度数": degree, "星座": zodiac}
 
@@ -95,8 +96,7 @@ def horoscope():
             planet1 = planet_list[i]
             planet2 = planet_list[j]
             angle = abs(planet_positions[planet1]["度数"] - planet_positions[planet2]["度数"])
-            if angle > 180:
-                angle = 360 - angle  # 0°〜180°の範囲に調整
+            angle = min(angle, 360 - angle)  # 0°〜180°に調整（修正点）
             aspect = get_aspect(angle)
             if aspect != "なし":
                 aspects.append(f"{planet1} と {planet2} は {aspect}")
