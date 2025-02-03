@@ -26,7 +26,7 @@ def get_zodiac_sign(degree):
     return "不明"
 
 # アスペクトの判定関数（修正）
-def get_aspect(angle, orb=8):  # 🔹 許容誤差を 8° に変更
+def get_aspect(angle, orb=6):  # 🔹 許容誤差を 6° に変更
     aspects = {
         "コンジャンクション (0°)": 0,
         "オポジション (180°)": 180,
@@ -85,10 +85,10 @@ def horoscope():
 
             # 🔹 角度を正しく計算し、0〜180° の範囲に補正
             angle = abs(planet_positions[planet1]["度数"] - planet_positions[planet2]["度数"])
-            angle = min(angle, 360 - angle)  # 180°を超えないように調整
+            angle = min(angle, 360 - angle)  # 🔹 180°を超えないように補正
 
             # 🔹 アスペクトを判定
-            aspect_name = get_aspect(angle, orb=8)  # 許容誤差を 8° に設定
+            aspect_name = get_aspect(angle, orb=6)  # 許容誤差を 6° に設定
             if aspect_name:  # None でなければ追加
                 aspects.append(f"{planet1} と {planet2} は {aspect_name}")
 
