@@ -1,5 +1,41 @@
+from flask import Blueprint, Response, json, request  # ✅ Blueprintを正しくインポート
+from skyfield.api import load
+import os
+import math
+
 # Flaskアプリケーションの作成
 horoscope_bp = Blueprint('horoscope', __name__)
+
+# 12星座（サイン）の定義
+ZODIAC_SIGNS = [
+    ("牡羊座", 0, 30), ("牡牛座", 30, 60), ("双子座", 60, 90),
+    ("蟹座", 90, 120), ("獅子座", 120, 150), ("乙女座", 150, 180),
+    ("天秤座", 180, 210), ("蠍座", 210, 240), ("射手座", 240, 270),
+    ("山羊座", 270, 300), ("水瓶座", 300, 330), ("魚座", 330, 360)
+]
+
+# 星座（サイン）の計算関数
+def get_zodiac_sign(degree):
+    for sign, start, end in ZODIAC_SIGNS:
+        if start <= degree < end:
+            return sign
+    return "不明"
+
+# アスペクトの判定関数
+def get_aspect(angle):
+    aspects = {
+        "コンジャンクション (0°)": 0,
+        "オポジション (180°)": 180,
+        "トライン (120°)": 120,
+        "スクエア (90°)": 90,
+        "セクスタイル (60°)": 60
+    }
+    orb = 6  # 許容誤差（調整可能）
+
+    for name, aspect_angle in aspects.items():
+        if abs(angle - aspect_angle) <= orb:
+            return name
+    return None  # なしの場合は None を返す
 
 @horoscope_bp.route("/horoscope", methods=["GET"])
 def horoscope():
@@ -12,6 +48,7 @@ def horoscope():
     lon = float(request.args.get("lon", 139.0)) # デフォルト: 東京の経度
 
     # Skyfieldのデータをロード
+    BSP_FILE = "de421.bsp"  # BSPファイルのパス
     eph = load(BSP_FILE)
     ts = load.timescale()
 
