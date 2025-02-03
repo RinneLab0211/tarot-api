@@ -1,4 +1,4 @@
-# アスペクトの計算（修正バージョン）
+# アスペクトの判定（修正バージョン）
 def get_aspect(angle):
     aspects = {
         "コンジャンクション (0°)": 0,
@@ -12,12 +12,21 @@ def get_aspect(angle):
     for name, aspect_angle in aspects.items():
         if abs(angle - aspect_angle) <= orb:
             return name
-    return "なし"
+    return None  # なしの場合は None を返す
 
-# 惑星間のアスペクトの計算（修正バージョン）
-aspects = []
+# 惑星の度数と星座の計算
+planet_positions = {}
+for name, position in planets.items():
+    degree = position[0].degrees % 360  # 0〜360度に正規化
+    degree = round(degree, 2)  # 小数点2桁まで丸める
+    zodiac = get_zodiac_sign(degree)  # 12星座の計算
+    planet_positions[name] = {"度数": degree, "星座": zodiac}
+
+# 🔹 ここで `planet_positions` を定義した後に `planet_list` を作成
 planet_list = list(planet_positions.keys())
 
+# 🔹 惑星間のアスペクトの計算（修正バージョン）
+aspects = []
 for i in range(len(planet_list)):
     for j in range(i + 1, len(planet_list)):
         planet1 = planet_list[i]
@@ -29,6 +38,7 @@ for i in range(len(planet_list)):
             angle = 360 - angle  # 180°を超えないように調整
 
         # アスペクトを判定
-        aspect = get_aspect(angle)
-        if aspect != "なし":
-            aspects.append(f"{planet1} と {planet2} は {aspect}")
+        aspect_name = get_aspect(angle)
+        if aspect_name:  # None でなければ追加
+            aspects.append(f"{planet1} と {planet2} は {aspect_name}")
+
